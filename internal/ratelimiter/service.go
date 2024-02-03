@@ -10,6 +10,7 @@ import (
 	"github.com/mateusmatinato/goexpert-rate-limiter/internal/ratelimiter/blocked"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/service_mock.go -package=mocks
 type Service interface {
 	CanAccess(ctx context.Context, token string, ip string) error
 }
@@ -26,12 +27,12 @@ func (s service) CanAccess(ctx context.Context, token string, ip string) error {
 			return ErrInvalidToken
 		}
 
-		limit := s.params.TokenList[token].MaxRequestsByMinute
+		limit := s.params.TokenList[token].MaxRequestsSecond
 		return s.validateAccess(ctx, OriginToken, token, limit)
 	}
 
 	if s.params.BlockByIP {
-		return s.validateAccess(ctx, OriginIP, ip, s.params.LimitIPByMinute)
+		return s.validateAccess(ctx, OriginIP, ip, s.params.LimitIPBySecond)
 	}
 
 	if token == "" {
@@ -109,13 +110,13 @@ func validateParams(params Params) error {
 		return ErrTokenListEmpty
 	}
 
-	if params.BlockByIP && params.LimitIPByMinute <= 0 {
+	if params.BlockByIP && params.LimitIPBySecond <= 0 {
 		return ErrInvalidLimitIP
 	}
 
 	if params.BlockByToken {
 		for _, token := range params.TokenList {
-			if token.MaxRequestsByMinute <= 0 {
+			if token.MaxRequestsSecond <= 0 {
 				return ErrInvalidLimitToken
 			}
 		}

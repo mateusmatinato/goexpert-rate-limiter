@@ -17,7 +17,7 @@ type (
 
 type TokenInfo struct {
 	ID                  string
-	MaxRequestsByMinute int
+	MaxRequestsBySecond int
 }
 
 type DatabaseConfig struct {
@@ -32,7 +32,7 @@ func defaultParams() ratelimiter.Params {
 		BlockByToken:    false,
 		BlockTimeToken:  1 * time.Minute,
 		BlockTimeIP:     1 * time.Minute,
-		LimitIPByMinute: 5,
+		LimitIPBySecond: 5,
 		TokenList:       make(map[string]ratelimiter.TokenInfo),
 	}
 }
@@ -40,7 +40,7 @@ func defaultParams() ratelimiter.Params {
 func WithBlockByIP(limit int) ParamsOptions {
 	return func(params *ratelimiter.Params) {
 		params.BlockByIP = true
-		params.LimitIPByMinute = limit
+		params.LimitIPBySecond = limit
 	}
 }
 
@@ -48,7 +48,10 @@ func WithBlockByToken(tokenList []TokenInfo) ParamsOptions {
 	return func(params *ratelimiter.Params) {
 		params.BlockByToken = true
 		for _, token := range tokenList {
-			params.TokenList[token.ID] = ratelimiter.TokenInfo(token)
+			params.TokenList[token.ID] = ratelimiter.TokenInfo{
+				ID:                token.ID,
+				MaxRequestsSecond: token.MaxRequestsBySecond,
+			}
 		}
 	}
 }

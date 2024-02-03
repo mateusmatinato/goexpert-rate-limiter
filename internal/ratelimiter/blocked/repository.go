@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+//go:generate mockgen -source=repository.go -destination=mocks/repository_mock.go -package=mocks
 type Repository interface {
 	Block(ctx context.Context, key string, expiration time.Duration) error
 	IsBlocked(ctx context.Context, key string) (bool, error)

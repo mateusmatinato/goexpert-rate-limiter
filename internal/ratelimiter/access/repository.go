@@ -9,6 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+//go:generate mockgen -source=repository.go -destination=mocks/repository_mock.go -package=mocks
 type Repository interface {
 	GetAccessCount(ctx context.Context, key string) (int, error)
 	IncrementAccessCount(ctx context.Context, key string) error
@@ -39,7 +40,7 @@ func (r repository) IncrementAccessCount(ctx context.Context, key string) error 
 		return err
 	}
 
-	expiration := 1 * time.Minute
+	expiration := 1 * time.Second
 	if count > 0 {
 		expiration = redis.KeepTTL
 	}

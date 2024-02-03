@@ -8,8 +8,8 @@ services:
     volumes:
       - redis-data:/data
     environment:
-        - REDIS_PASSWORD=user=
-        - REDIS_PORT=6379
+      - REDIS_PASSWORD=user
+      - REDIS_PORT=6379
     networks:
       - prod
   api:
@@ -18,17 +18,19 @@ services:
       dockerfile: Dockerfile
     container_name: api
     ports:
-      - "8081:8080"
+      - "8080:8080"
     restart: always
     networks:
       - prod
     depends_on:
       - redis
+    environment:
+      - REDIS_URL=redis
 
 networks:
   prod:
     driver: bridge
 
 volumes:
-    redis-data:
-        driver: local
+  redis-data:
+    driver: local

@@ -2,22 +2,25 @@ package config
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/mateusmatinato/goexpert-rate-limiter/internal/platform/redis"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	RedisURL      string `mapstructure:"REDIS_URL"`
-	RedisPassword string `mapstructure:"REDIS_PASSWORD"`
-	RedisPort     int    `mapstructure:"REDIS_PORT"`
-	TokenInfo     map[string]TokenInfo
+	RedisURL       string        `mapstructure:"REDIS_URL"`
+	RedisPassword  string        `mapstructure:"REDIS_PASSWORD"`
+	RedisPort      int           `mapstructure:"REDIS_PORT"`
+	LimitByIP      int           `mapstructure:"LIMIT_BY_IP"`
+	BlockTimeIP    time.Duration `mapstructure:"BLOCK_TIME_IP"`
+	BlockTimeToken time.Duration `mapstructure:"BLOCK_TIME_TOKEN"`
+	TokenList      []TokenInfo
 }
 
 type TokenInfo struct {
-	TokenID            string `json:"token_id"`
-	MaxRequestsSeconds int    `json:"max_requests_seconds"`
-	BlockTimeSeconds   int    `json:"block_time_seconds"`
+	ID                 string `json:"id"`
+	RequestLimitSecond int    `json:"request_limit_second"`
 }
 
 func (c *Config) ToRedisConfig() redis.Config {
@@ -51,10 +54,7 @@ func LoadConfig(path string) (cfg Config, err error) {
 	if err != nil {
 		return
 	}
-	cfg.TokenInfo = make(map[string]TokenInfo)
-	for _, token := range tokenList {
-		cfg.TokenInfo[token.TokenID] = token
-	}
+	cfg.TokenList = tokenList
 
 	return
 }
