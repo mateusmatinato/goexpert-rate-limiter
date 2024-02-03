@@ -1,0 +1,2 @@
+GET localhost:8080
+// This should work only if the rate limiter is configured to allow ratelimiter by IP

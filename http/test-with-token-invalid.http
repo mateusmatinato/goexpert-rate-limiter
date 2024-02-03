@@ -1,0 +1,3 @@
+GET localhost:8080
+API_KEY: invalid-token
+// This should fail when limit by ip is activated, because it's a invalid token, unless you set in the config

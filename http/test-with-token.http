@@ -1,0 +1,3 @@
+GET localhost:8080
+API_KEY: test
+// This should work when limit by token is set
