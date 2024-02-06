@@ -54,7 +54,7 @@ func StartTestRoutes(cfg config.Config) *mux.Router {
 			w.Write([]byte("Testing Limiter By BOTH"))
 		}),
 	))
-	r.Handle("", limiterByBoth.Middleware(
+	r.Handle("/", limiterByBoth.Middleware(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte("Testing Limiter Default Route"))
 		}),

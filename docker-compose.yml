@@ -10,6 +10,7 @@ services:
     environment:
       - REDIS_PASSWORD=user
       - REDIS_PORT=6379
+    restart: always
     networks:
       - prod
   api:
