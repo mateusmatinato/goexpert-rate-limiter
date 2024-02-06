@@ -70,7 +70,7 @@ The token needs to be in the list of tokens configured in the file `configs/conf
 The limiter will use the token and the limit specified in the config file to the specific token to validate the access.
   - `/ip`: this route doesn't need an API_KEY in the header. The limiter will use the IP and the limit specified
 in the config file to validate the access.
-  - `/both`: this route has limiter configured to block both by ip and token, following the rules of the challenge.
+  - `/both` or `/`: this route has limiter configured to block both by ip and token, following the rules of the challenge.
 If a token is not sent, it will use the block by ip. If a token is sent, then validates the limiter by token.
     - `TIP`:  You can try to run this route without token to validate the limit by ip and when it blocks your ip, you can send a valid
     token, to validate the limit by token.
