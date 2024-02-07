@@ -25,8 +25,8 @@ type DatabaseConfig struct {
 
 func defaultParams() ratelimiter.Params {
 	return ratelimiter.Params{
-		BlockByIP:       false,
-		BlockByToken:    false,
+		LimitByIP:       false,
+		LimitByToken:    false,
 		BlockTimeToken:  1 * time.Minute,
 		BlockTimeIP:     1 * time.Minute,
 		LimitIPBySecond: 5,
@@ -34,16 +34,16 @@ func defaultParams() ratelimiter.Params {
 	}
 }
 
-func WithBlockByIP(limit int) ParamsOptions {
+func WithLimitByIP(limit int) ParamsOptions {
 	return func(params *ratelimiter.Params) {
-		params.BlockByIP = true
+		params.LimitByIP = true
 		params.LimitIPBySecond = limit
 	}
 }
 
-func WithBlockByToken(tokenInfo TokenInfo) ParamsOptions {
+func WithLimitByToken(tokenInfo TokenInfo) ParamsOptions {
 	return func(params *ratelimiter.Params) {
-		params.BlockByToken = true
+		params.LimitByToken = true
 		for tokenID, limit := range tokenInfo {
 			params.TokenList[tokenID] = limit
 		}
@@ -109,7 +109,7 @@ func (mw *Middleware) Middleware(next http.Handler) http.Handler {
 	})
 }
 
-func NewDatabaseConfig(addr string, port int, pwd string) DatabaseConfig {
+func WithDatabaseConfig(addr string, port int, pwd string) DatabaseConfig {
 	return DatabaseConfig{
 		Addr:     addr,
 		Port:     port,

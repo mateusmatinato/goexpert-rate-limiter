@@ -10,8 +10,8 @@ import (
 
 func StartTestRoutes(cfg config.Config) *mux.Router {
 	limiterByToken, err := ratelimiter.New(
-		newRateLimiterDBConfig(cfg),
-		ratelimiter.WithBlockByToken(newTokenInfo(cfg)),
+		ratelimiter.WithDatabaseConfig(cfg.RedisURL, cfg.RedisPort, cfg.RedisPassword),
+		ratelimiter.WithLimitByToken(newTokenInfo(cfg)),
 		ratelimiter.WithBlockTimeToken(cfg.BlockTimeToken),
 	)
 	if err != nil {
@@ -19,8 +19,8 @@ func StartTestRoutes(cfg config.Config) *mux.Router {
 	}
 
 	limiterByIP, err := ratelimiter.New(
-		newRateLimiterDBConfig(cfg),
-		ratelimiter.WithBlockByIP(cfg.LimitByIP),
+		ratelimiter.WithDatabaseConfig(cfg.RedisURL, cfg.RedisPort, cfg.RedisPassword),
+		ratelimiter.WithLimitByIP(cfg.LimitByIP),
 		ratelimiter.WithBlockTimeIP(cfg.BlockTimeIP),
 	)
 	if err != nil {
@@ -28,10 +28,10 @@ func StartTestRoutes(cfg config.Config) *mux.Router {
 	}
 
 	limiterByBoth, err := ratelimiter.New(
-		newRateLimiterDBConfig(cfg),
-		ratelimiter.WithBlockByToken(newTokenInfo(cfg)),
+		ratelimiter.WithDatabaseConfig(cfg.RedisURL, cfg.RedisPort, cfg.RedisPassword),
+		ratelimiter.WithLimitByToken(newTokenInfo(cfg)),
 		ratelimiter.WithBlockTimeToken(cfg.BlockTimeToken),
-		ratelimiter.WithBlockByIP(cfg.LimitByIP),
+		ratelimiter.WithLimitByIP(cfg.LimitByIP),
 		ratelimiter.WithBlockTimeIP(cfg.BlockTimeIP),
 	)
 	if err != nil {
@@ -68,12 +68,4 @@ func newTokenInfo(cfg config.Config) ratelimiter.TokenInfo {
 		tokenInfo[token.ID] = token.RequestLimitSecond
 	}
 	return tokenInfo
-}
-
-func newRateLimiterDBConfig(cfg config.Config) ratelimiter.DatabaseConfig {
-	return ratelimiter.DatabaseConfig{
-		Addr:     cfg.RedisURL,
-		Port:     cfg.RedisPort,
-		Password: cfg.RedisPassword,
-	}
 }

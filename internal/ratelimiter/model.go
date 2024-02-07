@@ -17,8 +17,8 @@ func generateKey(limitOrigin LimitOrigin, value string) string {
 }
 
 type Params struct {
-	BlockByIP       bool
-	BlockByToken    bool
+	LimitByIP       bool
+	LimitByToken    bool
 	BlockTimeToken  time.Duration
 	BlockTimeIP     time.Duration
 	LimitIPBySecond int

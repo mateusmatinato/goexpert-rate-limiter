@@ -22,7 +22,7 @@ type service struct {
 }
 
 func (s service) CanAccess(ctx context.Context, token string, ip string) error {
-	if s.params.BlockByToken && token != "" {
+	if s.params.LimitByToken && token != "" {
 		limit, ok := s.params.TokenList[token]
 		if !ok {
 			return ErrInvalidToken
@@ -31,7 +31,7 @@ func (s service) CanAccess(ctx context.Context, token string, ip string) error {
 		return s.validateAccess(ctx, OriginToken, token, limit)
 	}
 
-	if s.params.BlockByIP {
+	if s.params.LimitByIP {
 		return s.validateAccess(ctx, OriginIP, ip, s.params.LimitIPBySecond)
 	}
 
@@ -102,19 +102,19 @@ func NewService(accessRepository access.Repository, blockedRepository blocked.Re
 }
 
 func validateParams(params Params) error {
-	if !params.BlockByIP && !params.BlockByToken {
+	if !params.LimitByIP && !params.LimitByToken {
 		return ErrNotBlocking
 	}
 
-	if params.BlockByToken && len(params.TokenList) == 0 {
+	if params.LimitByToken && len(params.TokenList) == 0 {
 		return ErrTokenListEmpty
 	}
 
-	if params.BlockByIP && params.LimitIPBySecond <= 0 {
+	if params.LimitByIP && params.LimitIPBySecond <= 0 {
 		return ErrInvalidLimitIP
 	}
 
-	if params.BlockByToken {
+	if params.LimitByToken {
 		for _, limit := range params.TokenList {
 			if limit <= 0 {
 				return ErrInvalidLimitToken
