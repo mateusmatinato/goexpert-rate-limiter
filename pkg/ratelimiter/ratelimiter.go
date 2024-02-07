@@ -15,10 +15,7 @@ type (
 	ParamsOptions func(params *ratelimiter.Params)
 )
 
-type TokenInfo struct {
-	ID                  string
-	MaxRequestsBySecond int
-}
+type TokenInfo map[string]int
 
 type DatabaseConfig struct {
 	Addr     string
@@ -33,7 +30,7 @@ func defaultParams() ratelimiter.Params {
 		BlockTimeToken:  1 * time.Minute,
 		BlockTimeIP:     1 * time.Minute,
 		LimitIPBySecond: 5,
-		TokenList:       make(map[string]ratelimiter.TokenInfo),
+		TokenList:       make(map[string]int),
 	}
 }
 
@@ -44,14 +41,11 @@ func WithBlockByIP(limit int) ParamsOptions {
 	}
 }
 
-func WithBlockByToken(tokenList []TokenInfo) ParamsOptions {
+func WithBlockByToken(tokenInfo TokenInfo) ParamsOptions {
 	return func(params *ratelimiter.Params) {
 		params.BlockByToken = true
-		for _, token := range tokenList {
-			params.TokenList[token.ID] = ratelimiter.TokenInfo{
-				ID:                token.ID,
-				MaxRequestsSecond: token.MaxRequestsBySecond,
-			}
+		for tokenID, limit := range tokenInfo {
+			params.TokenList[tokenID] = limit
 		}
 	}
 }
@@ -72,7 +66,7 @@ type Middleware struct {
 	service ratelimiter.Service
 }
 
-func NewRateLimiterMiddleware(cfg DatabaseConfig, opts ...ParamsOptions) (*Middleware, error) {
+func New(cfg DatabaseConfig, opts ...ParamsOptions) (*Middleware, error) {
 	params := defaultParams()
 	for _, opt := range opts {
 		opt(&params)
@@ -113,4 +107,12 @@ func (mw *Middleware) Middleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func NewDatabaseConfig(addr string, port int, pwd string) DatabaseConfig {
+	return DatabaseConfig{
+		Addr:     addr,
+		Port:     port,
+		Password: pwd,
+	}
 }

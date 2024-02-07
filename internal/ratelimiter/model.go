@@ -22,10 +22,5 @@ type Params struct {
 	BlockTimeToken  time.Duration
 	BlockTimeIP     time.Duration
 	LimitIPBySecond int
-	TokenList       map[string]TokenInfo
-}
-
-type TokenInfo struct {
-	ID                string
-	MaxRequestsSecond int
+	TokenList       map[string]int
 }

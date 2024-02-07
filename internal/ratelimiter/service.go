@@ -23,11 +23,11 @@ type service struct {
 
 func (s service) CanAccess(ctx context.Context, token string, ip string) error {
 	if s.params.BlockByToken && token != "" {
-		if _, ok := s.params.TokenList[token]; !ok {
+		limit, ok := s.params.TokenList[token]
+		if !ok {
 			return ErrInvalidToken
 		}
 
-		limit := s.params.TokenList[token].MaxRequestsSecond
 		return s.validateAccess(ctx, OriginToken, token, limit)
 	}
 
@@ -115,8 +115,8 @@ func validateParams(params Params) error {
 	}
 
 	if params.BlockByToken {
-		for _, token := range params.TokenList {
-			if token.MaxRequestsSecond <= 0 {
+		for _, limit := range params.TokenList {
+			if limit <= 0 {
 				return ErrInvalidLimitToken
 			}
 		}

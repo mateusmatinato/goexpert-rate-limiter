@@ -9,16 +9,16 @@ import (
 )
 
 func StartTestRoutes(cfg config.Config) *mux.Router {
-	limiterByToken, err := ratelimiter.NewRateLimiterMiddleware(
+	limiterByToken, err := ratelimiter.New(
 		newRateLimiterDBConfig(cfg),
-		ratelimiter.WithBlockByToken(newTokenList(cfg)),
+		ratelimiter.WithBlockByToken(newTokenInfo(cfg)),
 		ratelimiter.WithBlockTimeToken(cfg.BlockTimeToken),
 	)
 	if err != nil {
 		panic("error starting rate limiter by token: " + err.Error())
 	}
 
-	limiterByIP, err := ratelimiter.NewRateLimiterMiddleware(
+	limiterByIP, err := ratelimiter.New(
 		newRateLimiterDBConfig(cfg),
 		ratelimiter.WithBlockByIP(cfg.LimitByIP),
 		ratelimiter.WithBlockTimeIP(cfg.BlockTimeIP),
@@ -27,9 +27,9 @@ func StartTestRoutes(cfg config.Config) *mux.Router {
 		panic("error starting rate limiter by ip: " + err.Error())
 	}
 
-	limiterByBoth, err := ratelimiter.NewRateLimiterMiddleware(
+	limiterByBoth, err := ratelimiter.New(
 		newRateLimiterDBConfig(cfg),
-		ratelimiter.WithBlockByToken(newTokenList(cfg)),
+		ratelimiter.WithBlockByToken(newTokenInfo(cfg)),
 		ratelimiter.WithBlockTimeToken(cfg.BlockTimeToken),
 		ratelimiter.WithBlockByIP(cfg.LimitByIP),
 		ratelimiter.WithBlockTimeIP(cfg.BlockTimeIP),
@@ -62,15 +62,12 @@ func StartTestRoutes(cfg config.Config) *mux.Router {
 	return r
 }
 
-func newTokenList(cfg config.Config) []ratelimiter.TokenInfo {
-	var tokenList []ratelimiter.TokenInfo
+func newTokenInfo(cfg config.Config) ratelimiter.TokenInfo {
+	tokenInfo := make(ratelimiter.TokenInfo)
 	for _, token := range cfg.TokenList {
-		tokenList = append(tokenList, ratelimiter.TokenInfo{
-			ID:                  token.ID,
-			MaxRequestsBySecond: token.RequestLimitSecond,
-		})
+		tokenInfo[token.ID] = token.RequestLimitSecond
 	}
-	return tokenList
+	return tokenInfo
 }
 
 func newRateLimiterDBConfig(cfg config.Config) ratelimiter.DatabaseConfig {
